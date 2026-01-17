@@ -65,17 +65,30 @@ If you were to test this function, what areas or scenarios would you focus on, a
 
 ## 1) Code Review Findings
 ### Critical bugs
-- 
+- The check "@" in email is too weak to determine whether an email is valid.
+- Strings like "@", "user@", "@domain.com" and "a@b" are counted as valid even though they should not be.
+- If an item in the list is not a string (e.g. None or a number), the code may fail or behave unexpectedly.
 
 ### Edge cases & risks
-- 
+- Emails with multiple @ characters (e.g. "a@@b.com").
+- Emails with leading or trailing spaces.
+- Emails without a proper domain (missing .).
+- Mixed input types (strings, numbers, None).
+- Empty input list (works, but explanation overstates correctness).
 
 ### Code quality / design issues
-- 
+- No clear definition of what “valid email” means.
+- No input type checking.
+- The explanation promises correct validation, but the implementation does not support that claim.
 
 ## 2) Proposed Fixes / Improvements
 ### Summary of changes
-- 
+- Added a small helper function to perform basic email validation.
+- Ensured the value is a string before processing.
+- Required exactly one @ character.
+- Ensured both local and domain parts are present.
+- Checked that the domain contains at least one dot and no spaces.
+- Skipped invalid entries safely instead of counting them.
 
 ### Corrected code
 See `correct_task2.py`
@@ -85,21 +98,28 @@ See `correct_task2.py`
 
 ### Testing Considerations
 If you were to test this function, what areas or scenarios would you focus on, and why?
+- Empty list input, to confirm it returns 0.
+- Clearly valid emails (e.g. "user@example.com").
+- Clearly invalid emails ("@", "user@", "a@b", "a@@b.com").
+- Inputs with leading/trailing spaces.
+- Mixed input types such as None, numbers, and strings.
+- Large input lists to ensure consistent behavior.
 
 ## 3) Explanation Review & Rewrite
 ### AI-generated explanation (original)
 > This function counts the number of valid email addresses in the input list. It safely ignores invalid entries and handles empty input correctly.
 
 ### Issues in original explanation
-- 
+- The explanation claims the function counts “valid email addresses,” but the code only checks for the presence of "@".
+- It incorrectly suggests invalid entries are safely handled, which is not always true for non-string inputs.
 
 ### Rewritten explanation
-- 
+- This function counts how many items in the input list are valid email strings based on simple, practical rules. A valid email must be a string, contain exactly one @, have non-empty local and domain parts, contain no spaces, and include a dot in the domain. Invalid or non-string entries are ignored, and an empty input returns 0.
 
 ## 4) Final Judgment
-- Decision: Approve / Request Changes / Reject
-- Justification:
-- Confidence & unknowns:
+- Decision: Request Changes
+- Justification: The original implementation is too permissive and does not actually validate email addresses as described. It can also fail with non-string inputs.
+- Confidence & unknowns: High confidence in the identified issues and the fix. Exact validation rules may vary by product, but the implemented approach is a reasonable and safe baseline.
 
 ---
 
