@@ -10,17 +10,25 @@
 
 ## 1) Code Review Findings
 ### Critical bugs
-- 
+- The function adds only non-cancelled orders but still divides by the total number of orders. This makes the average incorrect.
+- If the input list is empty, the function will crash due to division by zero.
 
 ### Edge cases & risks
-- 
+- The code assumes every order has "status" and "amount" keys, which can cause errors if they are missing.
+- The amount value may not always be numeric, which can lead to incorrect results or runtime errors.
+- If all orders are cancelled, the function still divides by the full list size, which does not make sense for an average of valid orders.
 
 ### Code quality / design issues
-- 
+- The function assumes well-formed input without any validation.
+- It does not clearly separate which orders are included in the average versus excluded.
+- There is no defined behavior for cases where no valid orders exist.
 
 ## 2) Proposed Fixes / Improvements
 ### Summary of changes
-- 
+- Count only non-cancelled orders with valid numeric amounts.
+- Divide the total amount by the number of included orders instead of all orders.
+- Return 0.0 when there are no valid non-cancelled orders to avoid errors.
+- Safely read dictionary values and skip invalid entries instead of crashing.
 
 ### Corrected code
 See `correct_task1.py`
@@ -29,22 +37,27 @@ See `correct_task1.py`
 
  ### Testing Considerations
 If you were to test this function, what areas or scenarios would you focus on, and why?
-
+- An empty list, to confirm the function does not crash.
+- A mix of cancelled and non-cancelled orders, to verify the average is calculated correctly.
+- A case where all orders are cancelled.
+- Orders with missing fields or invalid amount values, to ensure the function behaves safely.
+- Different numeric formats for amounts (integers, floats, numeric strings).
 
 ## 3) Explanation Review & Rewrite
 ### AI-generated explanation (original)
 > This function calculates average order value by summing the amounts of all non-cancelled orders and dividing by the number of orders. It correctly excludes cancelled orders from the calculation.
 
 ### Issues in original explanation
-- 
+- The explanation says cancelled orders are excluded, but the denominator still includes them, so the average is wrong.
+- It does not explain what happens when the input is empty or when order data is invalid.
 
 ### Rewritten explanation
-- 
+- This function calculates the average order value for non-cancelled orders by summing their numeric amounts and dividing by the number of valid included orders. Cancelled orders are excluded from both the total and the count. Orders with missing or invalid amounts are ignored. If there are no valid non-cancelled orders, the function returns 0.0.
 
 ## 4) Final Judgment
-- Decision: Approve / Request Changes / Reject
-- Justification:
-- Confidence & unknowns:
+- Decision: Request Changes
+- Justification: The original code gives incorrect results because it divides by the wrong count and can crash on empty input. It also assumes perfect input data.
+- Confidence & unknowns: I am confident in the identified issues and the proposed fix. One open question is how the product would prefer invalid amounts to be handled, but skipping them is a safe and reasonable default.
 
 ---
 
