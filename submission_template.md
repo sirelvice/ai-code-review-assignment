@@ -1,8 +1,8 @@
 # AI Code Review Assignment (Python)
 
 ## Candidate
-- Name:
-- Approximate time spent:
+- Name: Elvis Oduor
+- Approximate time spent: 78 minutes
 
 ---
 
@@ -127,17 +127,26 @@ If you were to test this function, what areas or scenarios would you focus on, a
 
 ## 1) Code Review Findings
 ### Critical bugs
-- 
+- The function ignores None values in the sum but still divides by the total length of the input list, which produces an incorrect average.
+- If the input list is empty, the function will raise a division by zero error.
+- The function assumes all non-None values can be safely converted to floats, which is not always true.
 
 ### Edge cases & risks
-- 
+- All values are None, which should not result in a division by the full list size.
+- Mixed input types such as strings, invalid numeric values, or objects can cause runtime errors.
+- Special float values like NaN or infinity can silently corrupt the final average.
 
 ### Code quality / design issues
-- 
+- The logic does not clearly separate valid and invalid measurements.
+- There is no explicit definition of what qualifies as a “valid” measurement.
+- Error handling is missing around numeric conversion.
 
 ## 2) Proposed Fixes / Improvements
 ### Summary of changes
-- 
+- Count only values that are valid, finite numbers.
+- Skip None values and values that cannot be converted to floats.
+- Ignore non-finite float values such as NaN and infinity.
+- Return 0.0 when no valid measurements exist to avoid division errors.
 
 ### Corrected code
 See `correct_task3.py`
@@ -146,19 +155,25 @@ See `correct_task3.py`
 
 ### Testing Considerations
 If you were to test this function, what areas or scenarios would you focus on, and why?
-
+- Empty input list, to ensure the function does not crash.
+- Lists containing only None values.
+- Mixed inputs (numbers, numeric strings, invalid strings).
+- Inputs containing NaN or infinity values.
+- Typical valid numeric inputs to confirm correct averaging.
 
 ## 3) Explanation Review & Rewrite
 ### AI-generated explanation (original)
 > This function calculates the average of valid measurements by ignoring missing values (None) and averaging the remaining values. It safely handles mixed input types and ensures an accurate average
 
 ### Issues in original explanation
-- 
+- The explanation claims the function “safely handles mixed input types,” which is not true for invalid strings or non-numeric values.
+- It does not mention the incorrect denominator or the division-by-zero risk.
+- The behavior when no valid values exist is not defined.
 
 ### Rewritten explanation
-- 
+- This function calculates the average of valid numeric measurements by ignoring missing values (None) and any values that cannot be converted into finite numbers. Only valid numeric inputs are included in both the total and the count. If no valid measurements are found, the function returns 0.0.
 
 ## 4) Final Judgment
-- Decision: Approve / Request Changes / Reject
-- Justification:
-- Confidence & unknowns:
+- Decision: Request Changes
+- Justification: The original implementation produces incorrect averages, can crash on empty input, and does not safely handle mixed or invalid values.
+- Confidence & unknowns: High confidence in the identified issues and fixes. One open question is whether special float values like NaN or infinity should be handled differently depending on product requirements.
